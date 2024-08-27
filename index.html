@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <script defer type="text/javascript" src="https://unpkg.com/@green-api/whatsapp-api-client/lib/whatsapp-api-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>   
+  <style>
+    .result{
+            position: absolute;
+            top: 80px;
+    		    left: 250px;}
+  </style>
+</head>
+
+<body>
+  <h1>Green-Api</h1>
+  <form>
+  <label for="idInstance">Id Instance:</label><br>
+  <input required type="text" id="idInstance" name="idInstance"><br>
+  
+  <label for="apiTokenIsntance">API Token Instance:</label><br>
+  <input required type="text" id="apiTokenIsntance" name="apiTokenIsntance"><br><br>
+
+  <button id="getSettings" >Get Settings</button><br><br>
+        
+  <button id="getStateInstance">Get State Instance</button><br><br>
+        
+  <label for="phoneNumber">Phone Number:</label><br>
+  <input required type="tel" id="phoneNumber" name="phoneNumber" value=""><br>
+        
+  <label for="messageText">Message:</label><br>
+  <textarea id="messageText"></textarea><br>
+      
+  <button id="SendWhatsAppBtn">Send Message</button><br><br>
+  <label for="phoneNumber1">Phone Number:</label><br>
+  <input required type="tel" id="phoneNumber1" name="phoneNumber1" value=""><br>
+  <label for="url">File URL</label><br>
+  <input id="url"><br><br>
+  <button id="SendFileByUrlWhatsAppBtn">Send File By URL</button>
+	</form>
+  
+  <form class="result">   
+  <label>Ответ</label><br>
+  <textarea id="resultText" rows="27" cols="40" readonly ></textarea>
+  <button id="remove" >Очистить</button>
+	</form>
+    
+<script>
+  document.getElementById("SendWhatsAppBtn").addEventListener("click", function () {
+    const apiTokenInstance = document.getElementById("apiTokenIsntance").value;
+    const idInstance = document.getElementById("idInstance").value;
+    const chatId = `${document.getElementById("phoneNumber").value}@c.us`;
+    const message = document.getElementById("messageText").value;
+                
+    const restAPI = whatsAppClient.restAPI({
+      idInstance: idInstance,
+      apiTokenInstance: apiTokenInstance
+      });
+    event.preventDefault();
+    restAPI.message.sendMessage(chatId, null, message)
+      .then((data) => {
+        resultText.textContent +=`Message send with ID ${data.idMessage}  \
+        `;
+      })
+      .catch((error) => {
+        resultText.textContent +=`There was a problem sending message: ${error} \
+        `;
+      });
+
+  });
+  
+  
+  
+  document.getElementById('getSettings').addEventListener('click',() => {
+    const apiTokenInstance = document.getElementById("apiTokenIsntance").value;
+    const idInstance = document.getElementById("idInstance").value
+    const restAPI = whatsAppClient.restAPI({
+      idInstance: idInstance,
+      apiTokenInstance: apiTokenInstance
+    });
+    event.preventDefault();
+    restAPI.settings.getSettings()
+      .then((data) => {
+      resultText.textContent += `Your settings: \   
+      `;
+      for (items in data) {
+        const sett = document.createElement('p');
+        resultText.textContent += `${items}:${data[items]} \
+        `;
+      }})
+      .catch((error) => {
+        resultText.textContent += `Problems with your settings ${error}`;
+      })
+  })
+  
+  
+  document.getElementById('getStateInstance').addEventListener('click',() => {
+    const apiTokenInstance = document.getElementById("apiTokenIsntance").value;
+    const idInstance = document.getElementById("idInstance").value
+    const restAPI = whatsAppClient.restAPI({
+      idInstance: idInstance,
+      apiTokenInstance: apiTokenInstance
+    });
+    event.preventDefault();
+    restAPI.instance.getStateInstance()
+      .then((data) => {
+      resultText.textContent += `Your status ${data.stateInstance} \
+      `;
+      })
+      .catch((error) => {
+        resultText.textContent += `Problems whith getting ${error}`;
+      })
+  })
+  
+  
+  
+  document.getElementById('SendFileByUrlWhatsAppBtn').addEventListener("click", () => {
+    const apiTokenInstance = document.getElementById("apiTokenIsntance").value;
+    const idInstance = document.getElementById("idInstance").value;
+    const chatId = `${document.getElementById("phoneNumber").value}@c.us`;
+    const url = document.getElementById('url').value;
+    const restAPI = whatsAppClient.restAPI({
+      idInstance: idInstance,
+      apiTokenInstance: apiTokenInstance
+    });
+    event.preventDefault();
+    restAPI.file.sendFileByUrl(chatId, null, url, "z.jpeg","dc" )
+    .then((data) => {
+      resultText.textContent += `File upload ${data.idMessage}`;
+    })
+    .catch((error) => {
+      resultText.textContent += `There was a problem sending message: ${error}`;
+    })
+  })
+  
+  
+  
+  document.getElementById("remove").addEventListener("click", function () {
+    event.preventDefault();
+    document.getElementById("resultText").textContent="";
+  });
+</script>
+
+</body>
+
+</html>
